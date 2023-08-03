@@ -1,10 +1,12 @@
 import 'package:acrosstheglobe_assignment1/constants/colors.dart';
 import 'package:acrosstheglobe_assignment1/constants/images.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:acrosstheglobe_assignment1/controller/lessons_provider.dart';
+import 'package:acrosstheglobe_assignment1/models/lessons_model.dart';
+import 'package:acrosstheglobe_assignment1/models/programs_model.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-
+import 'package:provider/provider.dart';
 import '../constants/image_icon.dart';
+import '../controller/programs_provider.dart';
 import '../widgets/functionalities_widgets.dart';
 import '../widgets/icon_widgets.dart';
 import '../widgets/title_widgets.dart';
@@ -19,6 +21,8 @@ class HomeScreen extends StatelessWidget {
   List<Color> programColors = [AppColors().greyColor, AppColors().orangeColor];
   @override
   Widget build(BuildContext context) {
+    final appProvider = Provider.of<ProgramsProvider>(context);
+    final lessonProvider = Provider.of<LessonProvider>(context);
     return Scaffold(
         backgroundColor: AppColors().scaffoldBackground,
         appBar: AppBar(
@@ -75,93 +79,102 @@ class HomeScreen extends StatelessWidget {
               const ListviewTitleWidget(title: 'Programs for you'),
               Container(
                 padding: const EdgeInsets.only(left: 20, top: 20, bottom: 20),
-                height: 352,
+                height: 339,
                 width: double.infinity,
-                child: ListView.builder(
-                  itemCount: 2,
-                  scrollDirection: Axis.horizontal,
-                  itemBuilder: (context, index) => Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey.withOpacity(0.1),
-                          blurRadius: 3.0,
-                          spreadRadius: 2.0,
-                          offset: const Offset(0.0, 0.0),
-                        )
-                      ],
-                    ),
-                    margin: const EdgeInsets.only(right: 20),
-                    height: 360,
-                    width: 300,
-                    child: Center(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          //picture
-                          Container(
-                            height: 190,
+                child: appProvider.programResult.isEmpty
+                    ? const Center(
+                        child: CircularProgressIndicator(),
+                      )
+                    : ListView.builder(
+                        clipBehavior: Clip.none,
+                        itemCount: appProvider.programResult.length,
+                        scrollDirection: Axis.horizontal,
+                        itemBuilder: (context, index) {
+                          ProgramsModel current =
+                              appProvider.programResult[index];
+                          return Container(
                             decoration: BoxDecoration(
-                                borderRadius: const BorderRadius.only(
-                                  topLeft: Radius.circular(10),
-                                  topRight: Radius.circular(10),
-                                ),
-                                image: DecorationImage(
-                                    image: AssetImage(
-                                      programImages[index],
-                                    ),
-                                    fit: BoxFit.cover),
-                                color: programColors[index]),
-                          ),
-                          //content
-                          Container(
-                            decoration: const BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.only(
-                                  bottomLeft: Radius.circular(10),
-                                  bottomRight: Radius.circular(10)),
-                            ),
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 10, vertical: 10),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'LIFESTYLE',
-                                  style: TextStyle(
-                                      color: AppColors().blueColor,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16),
-                                ),
-                                const SizedBox(
-                                  height: 10,
-                                ),
-                                const SizedBox(
-                                  width: double.maxFinite,
-                                  child: Text(
-                                    'A complete guide for your new born baby',
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(
-                                  height: 10,
-                                ),
-                                const SubTitleWidget(
-                                  title: '16 Lessons',
-                                  fontSize: 15,
+                              borderRadius: BorderRadius.circular(10),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.grey.withOpacity(0.5),
+                                  blurRadius: 3.0,
+                                  spreadRadius: 0.0,
+                                  offset: const Offset(0.0, 0.0),
                                 )
                               ],
                             ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
+                            margin: const EdgeInsets.only(right: 20),
+                           // height: 360,
+                            width: 300,
+                            child: Center(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  //picture
+                                  Container(
+                                    height: 190,
+                                    decoration: BoxDecoration(
+                                        borderRadius: const BorderRadius.only(
+                                          topLeft: Radius.circular(10),
+                                          topRight: Radius.circular(10),
+                                        ),
+                                        image: DecorationImage(
+                                            image: AssetImage(
+                                                programImages[index % 2]),
+                                            fit: BoxFit.cover),
+                                        color: programColors[index % 2]),
+                                  ),
+                                  //content
+                                  Container(
+                                    decoration: const BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.only(
+                                          bottomLeft: Radius.circular(10),
+                                          bottomRight: Radius.circular(10)),
+                                    ),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 10, vertical: 10),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          current.category!,
+                                          style: TextStyle(
+                                              color: AppColors().blueColor,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 16),
+                                        ),
+                                        const SizedBox(
+                                          height: 10,
+                                        ),
+                                        SizedBox(
+                                          height: 30,
+                                          width: double.maxFinite,
+                                          child: Text(
+                                            current.name!,
+                                            style: const TextStyle(
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(
+                                          height: 10,
+                                        ),
+                                        SubTitleWidget(
+                                          title: '${current.lesson!} Lessons',
+                                          fontSize: 15,
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        }),
               ),
               //Events and experience list view
               const ListviewTitleWidget(title: 'Events and Experience'),
@@ -170,6 +183,7 @@ class HomeScreen extends StatelessWidget {
                 height: 364,
                 width: double.infinity,
                 child: ListView.builder(
+                  clipBehavior: Clip.none,
                   itemCount: 2,
                   scrollDirection: Axis.horizontal,
                   itemBuilder: (context, index) => Container(
@@ -177,7 +191,7 @@ class HomeScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(10),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.grey.withOpacity(0.1),
+                          color: Colors.grey.withOpacity(0.5),
                           blurRadius: 3.0,
                           spreadRadius: 2.0,
                           offset: const Offset(0.0, 0.0),
@@ -185,7 +199,6 @@ class HomeScreen extends StatelessWidget {
                       ],
                     ),
                     margin: const EdgeInsets.only(right: 20),
-                    // height: 370,
                     width: 300,
                     child: Center(
                       child: Column(
@@ -201,7 +214,7 @@ class HomeScreen extends StatelessWidget {
                               ),
                               image: DecorationImage(
                                   image: AssetImage(
-                                    Images().yogaImage,
+                                    programImages[index % 2],
                                   ),
                                   fit: BoxFit.cover),
                             ),
@@ -252,10 +265,13 @@ class HomeScreen extends StatelessWidget {
                                     ),
                                     Container(
                                       decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(15),
-                                        border: Border.all(width: 1,color: AppColors().blueColor)
-                                      ),
-                                      padding: const EdgeInsets.symmetric(vertical:5,horizontal: 10),
+                                          borderRadius:
+                                              BorderRadius.circular(15),
+                                          border: Border.all(
+                                              width: 1,
+                                              color: AppColors().blueColor)),
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 5, horizontal: 10),
                                       child: Text(
                                         'BOOK',
                                         style: TextStyle(
@@ -277,19 +293,22 @@ class HomeScreen extends StatelessWidget {
               ),
               //Lessons list view
               const ListviewTitleWidget(title: 'Lessons for you'),
-                Container(
+              Container(
                 padding: const EdgeInsets.only(left: 20, top: 20, bottom: 20),
-                height: 357,
+                height: 355,
                 width: double.infinity,
                 child: ListView.builder(
-                  itemCount: 2,
+                  clipBehavior: Clip.none,
+                  itemCount: lessonProvider.lessonResult.length,
                   scrollDirection: Axis.horizontal,
-                  itemBuilder: (context, index) => Container(
+                  itemBuilder: (context, index) {
+                    LessonModel current = lessonProvider.lessonResult[index];
+                    return Container(
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(10),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.grey.withOpacity(0.1),
+                          color: Colors.grey.withOpacity(0.5),
                           blurRadius: 3.0,
                           spreadRadius: 2.0,
                           offset: const Offset(0.0, 0.0),
@@ -297,7 +316,7 @@ class HomeScreen extends StatelessWidget {
                       ],
                     ),
                     margin: const EdgeInsets.only(right: 20),
-                    // height: 370,
+                   // height: 370,
                     width: 300,
                     child: Center(
                       child: Column(
@@ -313,7 +332,7 @@ class HomeScreen extends StatelessWidget {
                               ),
                               image: DecorationImage(
                                   image: AssetImage(
-                                    Images().yogaImage,
+                                    programImages[index % 2],
                                   ),
                                   fit: BoxFit.cover),
                             ),
@@ -332,7 +351,7 @@ class HomeScreen extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'BABYCARE',
+                                  current.category!,
                                   style: TextStyle(
                                       color: AppColors().blueColor,
                                       fontWeight: FontWeight.bold,
@@ -341,11 +360,12 @@ class HomeScreen extends StatelessWidget {
                                 const SizedBox(
                                   height: 10,
                                 ),
-                                const SizedBox(
+                                 SizedBox(
+                                  height: 40,
                                   width: double.maxFinite,
                                   child: Text(
-                                    'Understanding of human behaviour',
-                                    style: TextStyle(
+                                    current.name!,
+                                    style: const TextStyle(
                                       fontSize: 18,
                                       fontWeight: FontWeight.bold,
                                     ),
@@ -358,11 +378,14 @@ class HomeScreen extends StatelessWidget {
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
                                   children: [
-                                    const SubTitleWidget(
-                                      title: '3 min',
+                                     SubTitleWidget(
+                                      title: '${current.duration!} min',
                                       fontSize: 15,
                                     ),
-                                    Icon(Icons.lock,color: AppColors().iconColor,)
+                                    Icon(
+                                     current.locked!? Icons.lock_open: Icons.lock,
+                                      color: AppColors().iconColor,
+                                    )
                                   ],
                                 )
                               ],
@@ -371,7 +394,8 @@ class HomeScreen extends StatelessWidget {
                         ],
                       ),
                     ),
-                  ),
+                  );
+                  }
                 ),
               ),
             ],

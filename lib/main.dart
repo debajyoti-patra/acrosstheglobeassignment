@@ -1,14 +1,16 @@
 import 'package:acrosstheglobe_assignment1/constants/image_icon.dart';
+import 'package:acrosstheglobe_assignment1/controller/lessons_provider.dart';
 import 'package:acrosstheglobe_assignment1/screens/chat_screen.dart';
 import 'package:acrosstheglobe_assignment1/screens/home_screen.dart';
 import 'package:acrosstheglobe_assignment1/screens/hub_screen.dart';
 import 'package:acrosstheglobe_assignment1/screens/learn_screen.dart';
 import 'package:acrosstheglobe_assignment1/screens/profile_screen.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'controller/programs_provider.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -16,9 +18,19 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: CustomNavigator(),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (context) => ProgramsProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => LessonProvider(),
+        ),
+      ],
+      child: const MaterialApp(
+        debugShowCheckedModeBanner: false,
+        home: CustomNavigator(),
+      ),
     );
   }
 }
@@ -31,13 +43,23 @@ class CustomNavigator extends StatefulWidget {
 }
 
 class _CustomNavigatorState extends State<CustomNavigator> {
+  @override
+  void initState() {
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      Provider.of<ProgramsProvider>(context, listen: false).getPrograms(context);
+      Provider.of<LessonProvider>(context, listen: false).getLessons(context);
+    });
+
+    super.initState();
+  }
+
   int _selectedIndex = 0;
   List<Widget> screens = [
     HomeScreen(),
-    LearnScreen(),
-    HubScreen(),
-    ChatScreen(),
-    ProfileScreen()
+    const LearnScreen(),
+    const HubScreen(),
+    const ChatScreen(),
+    const ProfileScreen()
   ];
   void changeScreen(int index) {
     setState(() {
@@ -77,11 +99,10 @@ class _CustomNavigatorState extends State<CustomNavigator> {
           //hub icon
           BottomNavigationBarItem(
             icon: ImageIcon(
-              
               AssetImage(ImageIcons().hub),
             ),
             label: 'Hub',
-            activeIcon: ImageIcon( 
+            activeIcon: ImageIcon(
               AssetImage(ImageIcons().hubSelect),
             ),
           ),
@@ -91,7 +112,7 @@ class _CustomNavigatorState extends State<CustomNavigator> {
               AssetImage(ImageIcons().chatBubble),
             ),
             label: 'Chat',
-            activeIcon: ImageIcon( 
+            activeIcon: ImageIcon(
               AssetImage(ImageIcons().chatBubbleSelect),
             ),
           ),
@@ -99,10 +120,11 @@ class _CustomNavigatorState extends State<CustomNavigator> {
           BottomNavigationBarItem(
             icon: CircleAvatar(
               radius: 18,
-              backgroundColor: Color(0xffdee8fb),
+              backgroundColor:const Color(0xffdee8fb),
               child: Padding(
                 padding: const EdgeInsets.all(2),
-                child: CircleAvatar(backgroundColor: Colors.white,
+                child: CircleAvatar(
+                  backgroundColor: Colors.white,
                   child: Padding(
                     padding: const EdgeInsets.all(1),
                     child: CircleAvatar(
